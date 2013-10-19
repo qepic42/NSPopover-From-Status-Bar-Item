@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "MFPopoverContentViewController.h"
 
 @interface MFStatusView : NSView <NSMenuDelegate>
 

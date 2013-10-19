@@ -13,6 +13,7 @@
 @interface MFStatusView ()
 {
     BOOL _active;
+    BOOL _showsPopover;
     
     NSImageView *_imageView;
     
@@ -24,10 +25,6 @@
 
 - (void)updateUI;
 - (void)setActive:(BOOL)active;
-
-- (void)firstMenuItemAction:(id)sender;
-- (void)secondMenuItemAction:(id)sender;
-- (void)quitMenuItemAction:(id)sender;
 
 @end
 
@@ -46,28 +43,6 @@
 
         _statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:(ImageViewWidth)];
         _statusItem.view = self;
-        
-        _statusItemMenu = [[NSMenu alloc] init];
-        _statusItemMenu.delegate = self;
-        _statusItemMenu.autoenablesItems = NO;
-        _statusItem.menu = _statusItemMenu;
-        
-        NSMenuItem *menuItem1 = [[NSMenuItem alloc] initWithTitle:@"First" action:@selector(firstMenuItemAction:) keyEquivalent:@""];
-        menuItem1.target = self;
-        [menuItem1 setEnabled:YES];
-        [_statusItemMenu addItem:menuItem1];
-        
-        NSMenuItem *menuItem2 = [[NSMenuItem alloc] initWithTitle:@"Second" action:@selector(secondMenuItemAction:) keyEquivalent:@""];
-        menuItem2.target = self;
-        [menuItem2 setEnabled:YES];
-        [_statusItemMenu addItem:menuItem2];
-
-        [_statusItemMenu addItem:[NSMenuItem separatorItem]];
-        
-        NSMenuItem *quitItem = [[NSMenuItem alloc] initWithTitle:@"Quit" action:@selector(quitMenuItemAction:) keyEquivalent:@""];
-        quitItem.target = self;
-        [quitItem setEnabled:YES];
-        [_statusItemMenu addItem:quitItem];
 
         [self updateUI];
     }
@@ -87,8 +62,18 @@
 
 - (void)mouseDown:(NSEvent *)theEvent
 {
-    [self setActive:YES];
-    [_statusItem popUpStatusItemMenu:_statusItemMenu];
+    if (_showsPopover)
+    {
+        [self hidePopover];
+        _showsPopover = NO;
+    }
+    else
+    {
+        [self setActive:YES];
+        [self showPopoverWithViewController:[[MFPopoverContentViewController alloc] initWithNibName:@"MFPopoverContentViewController" bundle:nil]];
+        
+        _showsPopover = YES;
+    }
 }
 
 - (void)mouseUp:(NSEvent *)theEvent
@@ -106,21 +91,6 @@
 {
     _active = active;
     [self updateUI];
-}
-
-- (void)firstMenuItemAction:(id)sender
-{
-    NSLog(@"First Menu Item Selected");
-}
-
-- (void)secondMenuItemAction:(id)sender
-{
-    NSLog(@"Second Menu Item Selected");
-}
-
-- (void)quitMenuItemAction:(id)sender
-{
-    [[NSApplication sharedApplication] terminate:self];
 }
 
 - (void)showPopoverWithViewController:(NSViewController *)viewController
